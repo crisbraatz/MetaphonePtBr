@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub", "GitHub", "{36509B12-6D30-4E20-BC39-95AB8E82D669}"
+ProjectSection(SolutionItems) = preProject
+    .github\workflows\ci.yml = .github\workflows\ci.yml
+    .github\workflows\cd.yml = .github\workflows\cd.yml
+EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetaphonePtBr", "MetaphonePtBr\MetaphonePtBr.csproj", "{CE45DC4F-0D1D-4304-A712-B2A3EA93F92B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{3562A165-3880-4E24-BF9B-336ED81A2BFA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CE45DC4F-0D1D-4304-A712-B2A3EA93F92B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE45DC4F-0D1D-4304-A712-B2A3EA93F92B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE45DC4F-0D1D-4304-A712-B2A3EA93F92B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE45DC4F-0D1D-4304-A712-B2A3EA93F92B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3562A165-3880-4E24-BF9B-336ED81A2BFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3562A165-3880-4E24-BF9B-336ED81A2BFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3562A165-3880-4E24-BF9B-336ED81A2BFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3562A165-3880-4E24-BF9B-336ED81A2BFA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
