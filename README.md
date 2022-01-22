@@ -18,7 +18,19 @@ MetaphonePtBr is a text transformation algorithm based on phonetic rules of the 
 
 This project is a .NET library based on this [C project](https://github.com/carlosjordao/metaphone-ptbr) by [Carlos Costa Jordão](https://github.com/carlosjordao).
 
-## How is it work?
+## How to use?
+
+First, add the [NuGet package](https://www.nuget.org/packages/MetaphonePtBr/).
+
+Then, on any string:
+
+```csharp
+var token = "Word".GetMetaphoneToken();
+```
+
+It is just that!
+
+### How is it work?
 
 Basically, the single method generates a token for a single word in a string.
 
@@ -36,18 +48,6 @@ In other words, the token is the core letters that identify the word by the way 
 It can be very useful for searching names, addresses, products, brands and many more when:
 - Looking for similar word
 - Looking for a specific word, even though it was slightly misspelled
-
-### How to use?
-
-First, add the [NuGet package](https://www.nuget.org/packages/MetaphonePtBr/).
-
-Then, on any string:
-
-```csharp
-var token = "Word".GetMetaphoneToken();
-```
-
-It is just that!
 
 ### The algorithm
 
