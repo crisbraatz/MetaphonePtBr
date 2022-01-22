@@ -30,7 +30,7 @@ var token = "Word".GetMetaphoneToken();
 
 It is just that!
 
-### How is it work?
+## How is it work?
 
 Basically, the single method generates a token for a single word in a string.
 
@@ -49,7 +49,7 @@ It can be very useful for searching names, addresses, products, brands and many 
 - Looking for similar word
 - Looking for a specific word, even though it was slightly misspelled
 
-### The algorithm
+## The algorithm
 
 While iterating through the letters of the word, the algorithm will consider the following elements depending on the current letter:
 - The current index
@@ -60,7 +60,7 @@ While iterating through the letters of the word, the algorithm will consider the
 
 *If it has.
 
-### The rules
+## The rules
 
 | Symbol | Meaning              |
 | :----: | :------------------- |
