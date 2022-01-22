@@ -4,19 +4,18 @@ using MetaphonePtBr.Extensions;
 using MetaphonePtBr.Letters;
 using Xunit;
 
-namespace UnitTests.Letters
+namespace UnitTests.Letters;
+
+public class QTests
 {
-    public class QTests
+    [Fact]
+    public void Should_convert_letter()
     {
-        [Fact]
-        public void Should_convert_letter()
-        {
-            var token = new StringBuilder();
+        var token = new StringBuilder();
 
-            var obtainedIterationsBypass = Q.Convert(token);
+        var obtainedIterationsBypass = Q.Convert(token);
 
-            token.GetLetterAt()?.Should().Be('K');
-            obtainedIterationsBypass.Should().Be(0);
-        }
+        token.GetLetterAt()?.Should().Be('K');
+        obtainedIterationsBypass.Should().Be(0);
     }
 }
