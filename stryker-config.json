@@ -1,0 +1,10 @@
+{
+  "stryker-config": {
+    "mutation-level": "Complete",
+    "thresholds": {
+      "high": 80,
+      "low": 70,
+      "break": 60
+    }
+  }
+}
