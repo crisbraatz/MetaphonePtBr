@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Authors>Cristopher Braatz Cardoso</Authors>
+    <Copyright>Cristopher Braatz Cardoso</Copyright>
+    <Description>MetaphonePtBr is a text transformation algorithm based on phonetic rules of the Brazilian Portuguese language.</Description>
+    <Deterministic>true</Deterministic>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageId>MetaphonePtBr</PackageId>
+    <PackageProjectUrl>https://github.com/crisbraatz/MetaphonePtBr</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>metaphone</PackageTags>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <RepositoryUrl>https://github.com/crisbraatz/MetaphonePtBr</RepositoryUrl>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Title>MetaphonePtBr</Title>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release' ">
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub"/>
+    <PackageReference Include="MinVer"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\Assets\icon.png" Pack="true" PackagePath=""/>
+    <None Include="..\README.md" Pack="true" PackagePath=""/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="UnitTests"/>
+  </ItemGroup>
+
+</Project>

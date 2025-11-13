@@ -1,0 +1,25 @@
+name: CD
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: .NET Pack
+        run: dotnet pack MetaphonePtBr/MetaphonePtBr.csproj -c Release -p:PackageOutputPath=pack
+
+      - name: .NET NuGet Push
+        run: dotnet nuget push MetaphonePtBr/pack/*.nupkg -k ${{ secrets.API_KEY }} -s https://api.nuget.org/v3/index.json
