@@ -1,0 +1,141 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - 'LICENSE'
+      - 'README.md'
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'LICENSE'
+      - 'README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrate:
+    name: Test ${{ matrix.os }} / .NET 10
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: .NET Restore
+        run: >
+          dotnet restore MetaphonePtBr.slnx
+          -p:NuGetAudit=true
+          -p:NuGetAuditMode=all
+          -p:WarningsAsErrors=NU1901%3BNU1902%3BNU1903%3BNU1904
+
+      - name: .NET Audit
+        run: dotnet list MetaphonePtBr.slnx package --vulnerable --include-transitive
+
+      - name: .NET Build
+        run: dotnet build MetaphonePtBr.slnx -c Debug --no-restore
+
+      - name: .NET Test
+        run: dotnet test UnitTests/UnitTests.csproj -c Debug --no-build
+
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - integrate
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore .NET Tools
+        run: dotnet tool restore
+
+      - name: .NET Restore
+        run: dotnet restore MetaphonePtBr.slnx
+
+      - name: .NET Test Coverage
+        run: >
+          dotnet test UnitTests/UnitTests.csproj
+          -c Debug
+          --no-restore
+          /p:CollectCoverage=true
+          /p:CoverletOutput=../artifacts/coverage/
+          /p:CoverletOutputFormat=opencover
+          /p:Threshold=90
+          /p:ThresholdType=line
+          /p:ThresholdStat=total
+
+      - name: Upload .NET Coverage
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage
+          path: artifacts/coverage
+          if-no-files-found: error
+
+      - name: Stryker
+        working-directory: UnitTests
+        run: dotnet stryker --config-file stryker-config.json
+
+      - name: Upload Stryker Report
+        uses: actions/upload-artifact@v7
+        with:
+          name: stryker-report
+          path: UnitTests/StrykerOutput
+          if-no-files-found: error
+
+  package:
+    name: Package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - integrate
+      - coverage
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: .NET Restore
+        run: dotnet restore MetaphonePtBr.slnx
+
+      - name: .NET Pack
+        run: dotnet pack MetaphonePtBr/MetaphonePtBr.csproj -c Release --output "$GITHUB_WORKSPACE/artifacts/package"
+
+      - name: Validate NuGet package
+        run: |
+          nupkg="$(find "$GITHUB_WORKSPACE/artifacts/package" -name '*.nupkg' ! -name '*.symbols.nupkg' | head -n 1)"
+          snupkg="$(find "$GITHUB_WORKSPACE/artifacts/package" -name '*.snupkg' | head -n 1)"
+
+          test -n "$nupkg"
+          test -n "$snupkg"
+
+          unzip -l "$nupkg" | grep 'README.md'
+          unzip -l "$nupkg" | grep 'icon.png'
+          unzip -l "$nupkg" | grep '.nuspec'
+
+          unzip -p "$nupkg" '*.nuspec' | grep '<repository type="git"'
+          unzip -p "$nupkg" '*.nuspec' | grep 'license type="expression"'
+          unzip -p "$nupkg" '*.nuspec' | grep 'MIT'

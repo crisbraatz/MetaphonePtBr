@@ -1,0 +1,99 @@
+name: CD
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore .NET Tools
+        run: dotnet tool restore
+
+      - name: .NET Restore
+        run: >
+          dotnet restore MetaphonePtBr.slnx
+          -p:NuGetAudit=true
+          -p:NuGetAuditMode=all
+          -p:WarningsAsErrors=NU1901%3BNU1902%3BNU1903%3BNU1904
+
+      - name: .NET Audit
+        run: dotnet list MetaphonePtBr.slnx package --vulnerable --include-transitive
+
+      - name: .NET Build
+        run: dotnet build MetaphonePtBr.slnx -c Release --no-restore
+
+      - name: .NET Test
+        run: dotnet test UnitTests/UnitTests.csproj -c Release --no-build
+
+      - name: .NET Test Coverage
+        run: >
+          dotnet test UnitTests/UnitTests.csproj
+          -c Release
+          --no-restore
+          /p:CollectCoverage=true
+          /p:CoverletOutput=../artifacts/coverage/
+          /p:CoverletOutputFormat=opencover
+          /p:Threshold=90
+          /p:ThresholdType=line
+          /p:ThresholdStat=total
+
+      - name: Stryker
+        working-directory: UnitTests
+        run: dotnet stryker --config-file stryker-config.json
+
+      - name: .NET Pack
+        run: >
+          dotnet pack MetaphonePtBr/MetaphonePtBr.csproj
+          -c Release
+          --no-build
+          --output "$GITHUB_WORKSPACE/artifacts/package"
+
+      - name: Validate NuGet package
+        run: |
+          nupkg="$(find "$GITHUB_WORKSPACE/artifacts/package" -name '*.nupkg' ! -name '*.symbols.nupkg' | head -n 1)"
+          snupkg="$(find "$GITHUB_WORKSPACE/artifacts/package" -name '*.snupkg' | head -n 1)"
+
+          test -n "$nupkg"
+          test -n "$snupkg"
+
+          unzip -l "$nupkg" | grep 'README.md'
+          unzip -l "$nupkg" | grep 'icon.png'
+          unzip -l "$nupkg" | grep '.nuspec'
+
+          unzip -p "$nupkg" '*.nuspec' | grep '<repository type="git"'
+          unzip -p "$nupkg" '*.nuspec' | grep 'license type="expression"'
+          unzip -p "$nupkg" '*.nuspec' | grep 'MIT'
+
+      - name: NuGet Login
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: crisbraatz
+
+      - name: .NET NuGet Push
+        run: |
+          dotnet nuget push "$GITHUB_WORKSPACE"/artifacts/package/*.nupkg \
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
+
+          dotnet nuget push "$GITHUB_WORKSPACE"/artifacts/package/*.snupkg \
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
